@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 28, 2025 at 09:30 PM
+-- Generation Time: Oct 29, 2025 at 12:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,6 +43,13 @@ CREATE TABLE `applications` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `applications`
+--
+
+INSERT INTO `applications` (`id`, `eog_id`, `form_id`, `reference_number`, `current_level`, `progress_percentage`, `status`, `submitted_at`, `completed_at`, `funding_amount`, `approved_amount`, `disbursed_amount`, `created_at`, `updated_at`) VALUES
+(1, 1, 5, 'RDF-2025-0001', 'EOG_LEVEL', 0.00, 'draft', NULL, NULL, NULL, NULL, 0.00, '2025-10-28 21:37:11', '2025-10-28 21:37:11');
 
 -- --------------------------------------------------------
 
@@ -1340,9 +1347,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `first_name`, `last_name`, `phone`, `status`, `region_id`, `tinkhundla_id`, `umphakatsi_id`, `ministry`, `last_login`, `password_reset_token`, `password_reset_expires`, `created_at`, `updated_at`, `user_id`) VALUES
-(1, 'admin', 'admin@rdf.gov.sz', '$2b$12$B9N.Xon.UNL6Z1CmDe8/r.dWLhsbKSoRibvZuLxWoU7sWBE324/y.', 'SUPER_USER', 'Super  User', 'Administrator', '+26876000000', 'active', NULL, NULL, NULL, NULL, '2025-10-28 19:51:23', NULL, NULL, '2025-10-24 07:43:01', '2025-10-28 19:51:23', NULL),
+(1, 'admin', 'admin@rdf.gov.sz', '$2b$12$B9N.Xon.UNL6Z1CmDe8/r.dWLhsbKSoRibvZuLxWoU7sWBE324/y.', 'SUPER_USER', 'Super  User', 'Administrator', '+26876000000', 'active', NULL, NULL, NULL, NULL, '2025-10-29 10:58:43', NULL, NULL, '2025-10-24 07:43:01', '2025-10-29 10:58:43', NULL),
 (11, 'wandile', 'wakhiwakhi1@gmail.com', '$2b$12$CtgMosqQVIg7x515J2jb6ORD9n1M8F/KxvqxrBYn0hM4w4YqbXQSy', 'CDO', 'Wandile', 'Ngwenya', '76543212', 'active', 2, 24, 123, 'TINKHUNDLA', '2025-10-27 02:09:15', NULL, NULL, '2025-10-25 20:11:27', '2025-10-27 02:09:15', NULL),
-(17, 'temp_20251026_9084', 'celimphilodlamini94@gmail.com', '$2b$12$rwMqQp1q0i4mYJH3HlkMYeniqSoecVksuFLeBaBnKCa8wCEP2VDYe', 'EOG', 'Timphisini Beehives', 'Cooperative', '79876543', 'active', 1, 15, 77, NULL, '2025-10-28 20:15:55', NULL, NULL, '2025-10-26 11:02:49', '2025-10-28 20:15:55', NULL),
+(17, 'beehives', 'celimphilodlamini94@gmail.com', '$2b$12$rwMqQp1q0i4mYJH3HlkMYeniqSoecVksuFLeBaBnKCa8wCEP2VDYe', 'EOG', 'Timphisini Beehives', 'Cooperative', '79876543', 'active', 1, 15, 77, NULL, '2025-10-29 08:37:49', NULL, NULL, '2025-10-26 11:02:49', '2025-10-29 08:37:49', NULL),
 (18, 'olwethu', 'wakhiwakhi1@outlook.com', '$2b$12$bXaXOndWnnX8cAESxCmp9OLkHBRfhkXpce14cv6.gZNFHsO8HR536', 'CDO', 'Olwethu', 'Dlamini', '+26878654321', 'active', 1, 15, 76, 'TINKHUNDLA', '2025-10-28 15:05:41', NULL, NULL, '2025-10-26 11:20:56', '2025-10-28 15:05:41', NULL),
 (19, 'temp_20251028_9868', 'olwethudlamin10@gmail.com', '$2b$12$owdh2m1Khu.SO5HVm3h3J.uZND.clCGMZ9feB4AooiZUbX6mVLEX.', 'EOG', 'Inana Mainze Meal', 'Cooperative', '26878900987', 'temporary', 1, 1, 1, NULL, '2025-10-28 14:19:48', NULL, NULL, '2025-10-28 13:23:26', '2025-10-28 14:19:48', NULL);
 
@@ -1382,7 +1389,16 @@ INSERT INTO `user_activity_logs` (`id`, `user_id`, `action`, `entity_type`, `ent
 (11, 1, 'user_created', 'users', 14, '{\"role\":\"CDO\",\"creator\":1}', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-25 20:51:59'),
 (12, 1, 'user_created', 'users', 15, '{\"role\":\"CDO\",\"creator\":1}', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-25 20:58:40'),
 (13, 1, 'user_created', 'users', 16, '{\"role\":\"CDO\",\"creator\":1}', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-25 21:20:22'),
-(14, 1, 'user_created', 'users', 18, '{\"role\":\"CDO\",\"creator\":1}', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-26 11:20:56');
+(14, 1, 'user_created', 'users', 18, '{\"role\":\"CDO\",\"creator\":1}', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-26 11:20:56'),
+(15, 17, 'application_created', 'applications', 1, 'Created new application with reference: RDF-2025-0001', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 21:37:11'),
+(16, 17, 'form_responses_saved', 'applications', 1, 'Saved 0 form responses (0 permission errors, 4 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 22:06:02'),
+(17, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 22:37:41'),
+(18, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 22:42:12'),
+(19, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 23:01:40'),
+(20, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 23:17:51'),
+(21, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-28 23:24:38'),
+(22, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-29 00:01:51'),
+(23, 17, 'form_responses_saved', 'applications', 1, 'Saved 1 form responses (0 permission errors, 0 validation errors)', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', '2025-10-29 08:38:02');
 
 -- --------------------------------------------------------
 
@@ -1615,7 +1631,20 @@ INSERT INTO `user_sessions` (`id`, `user_id`, `session_token`, `refresh_token`, 
 (203, 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AcmRmLmdvdi5zeiIsInJvbGUiOiJTVVBFUl9VU0VSIiwiaWF0IjoxNzYxNjc1Mjg0LCJleHAiOjE3NjE2NzYxODR9.Y3LhyhNOI1rxEhBCEVrmI9k_GfDK_meEpDfg1leC25Q', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidG9rZW5UeXBlIjoicmVmcmVzaCIsImlhdCI6MTc2MTY3NTI4NCwiZXhwIjoxNzYyMjgwMDg0fQ.ALYCbNV7wGhj_8-BFQKsSxVxuhrFCSgdxWsyeE-1bPk', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 0, '2025-10-28 18:16:28', '2025-10-28 18:14:44', '2025-10-28 18:16:28'),
 (204, 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AcmRmLmdvdi5zeiIsInJvbGUiOiJTVVBFUl9VU0VSIiwiaWF0IjoxNzYxNjc1Mzk2LCJleHAiOjE3NjE2NzYyOTZ9.TU0wgkxskfu96vcv4wce7ipzanR7iyJcXiiiMEESxz4', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidG9rZW5UeXBlIjoicmVmcmVzaCIsImlhdCI6MTc2MTY3NTM5NiwiZXhwIjoxNzYyMjgwMTk2fQ.aen_wSboEvrLB66O-2cxi9sT5uE2AryVowwcrffZg_8', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 18:21:49', '2025-10-28 18:16:36', '2025-10-28 18:21:49'),
 (205, 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AcmRmLmdvdi5zeiIsInJvbGUiOiJTVVBFUl9VU0VSIiwiaWF0IjoxNzYxNjgxMDgzLCJleHAiOjE3NjE2ODE5ODN9.tBKLGU9aUawE4KJAu6U6YqmGEsUsdeAgEo3tvqKZzXE', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidG9rZW5UeXBlIjoicmVmcmVzaCIsImlhdCI6MTc2MTY4MTA4MywiZXhwIjoxNzYyMjg1ODgzfQ.ALhIbt-7ZMTqC72q-qtNy_WdXplYCgU8HtSKHayAhS0', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 20:04:22', '2025-10-28 19:51:23', '2025-10-28 20:04:22'),
-(206, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODI1NTUsImV4cCI6MTc2MTY4MzQ1NX0.-XUj70-5OuDtcFY9UO1f2obJ_YWM4SU39Obm4Xv-c_s', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODI1NTUsImV4cCI6MTc2MjI4NzM1NX0.BwQdBMCR3AT4_nYbK0vqwOQnoN2vZ_oe6bCUJSnsSqI', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 20:25:42', '2025-10-28 20:15:55', '2025-10-28 20:25:42');
+(206, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODI1NTUsImV4cCI6MTc2MTY4MzQ1NX0.-XUj70-5OuDtcFY9UO1f2obJ_YWM4SU39Obm4Xv-c_s', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODI1NTUsImV4cCI6MTc2MjI4NzM1NX0.BwQdBMCR3AT4_nYbK0vqwOQnoN2vZ_oe6bCUJSnsSqI', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 20:25:42', '2025-10-28 20:15:55', '2025-10-28 20:25:42'),
+(207, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODU4MTgsImV4cCI6MTc2MTY4NjcxOH0.v-wFpRiIFoHFzZKB0g5TKiyPNoNApd7GgVKBBIRpENw', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODU4MTgsImV4cCI6MTc2MjI5MDYxOH0.Id5TF2mQ7DpqNHasVzptyj-synklVmfffvVe1CxVASg', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 21:24:59', '2025-10-28 21:10:18', '2025-10-28 21:24:59'),
+(208, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODc0MjksImV4cCI6MTc2MTY4ODMyOX0.LmcvaAd_i9mFI2Hm0oLJ9yF1aacHE_9qAVx8Kke37a0', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODc0MjksImV4cCI6MTc2MjI5MjIyOX0.fxanGRPALEUf9oE5JonMASQI3PioZJgIiHXiJu-h6Ig', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 21:37:11', '2025-10-28 21:37:09', '2025-10-28 21:37:11'),
+(209, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODg1NjAsImV4cCI6MTc2MTY4OTQ2MH0.CEA1y46mf1IrC3IJrhI933MO9vlYl_tpo7N90tBQj3c', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODg1NjAsImV4cCI6MTc2MjI5MzM2MH0.Eo6qLOJE9ssDvhl2ndziGszJD9oGO5ph5DCp6oONHww', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 22:06:09', '2025-10-28 21:56:00', '2025-10-28 22:06:09'),
+(210, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2ODk5NTMsImV4cCI6MTc2MTY5MDg1M30.nHhNh5wQ7KuVu75dGXpJE8JBqQSAIGoziJZ_bIfSFiU', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2ODk5NTMsImV4cCI6MTc2MjI5NDc1M30.e9hx2yi8omeffayKVI-bJZWvBmhxgY1XHLvQnND1ivo', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 22:33:57', '2025-10-28 22:19:13', '2025-10-28 22:33:57'),
+(211, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2OTA5MTYsImV4cCI6MTc2MTY5MTgxNn0.MMKsl-1n_S9_UC8TZg5MWCg1d8V3LBlx-DCBkIW_v6o', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2OTA5MTYsImV4cCI6MTc2MjI5NTcxNn0.my75gkwD8C2w-n5qBB-MeA0rXpt-j9c5CVECZWiC2Yc', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 22:42:16', '2025-10-28 22:35:16', '2025-10-28 22:42:16'),
+(212, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2OTIwNjIsImV4cCI6MTc2MTY5Mjk2Mn0.Q-oT57n-orA8Jp3IrRolSCNWSgvE1YZTYKAWpYB0Xjk', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2OTIwNjIsImV4cCI6MTc2MjI5Njg2Mn0.UUp7ooeN-JFzZTN3sTOMFE-mFMTPhyJrgW8ORhFqtDc', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 23:02:52', '2025-10-28 22:54:22', '2025-10-28 23:02:52'),
+(213, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2OTM0NTgsImV4cCI6MTc2MTY5NDM1OH0.m5_J7gsM3Ews-goRUSFIYOKNNEUYVgzmPTvUYbc_dSI', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2OTM0NTgsImV4cCI6MTc2MjI5ODI1OH0.kXTK4oaG9GNcZinavuCVMI0eqcV-zStfxyt2qkeexoc', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-28 23:26:06', '2025-10-28 23:17:38', '2025-10-28 23:26:06'),
+(214, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE2OTYwOTYsImV4cCI6MTc2MTY5Njk5Nn0.yBOOzky1FTz2_Yu26ObGIZH1hlbcBqGan2jaifBnIkA', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE2OTYwOTYsImV4cCI6MTc2MjMwMDg5Nn0.uLPOuNnFTjn4KpvpJrzlggdQdRIZ21bmhJjEhKebxv0', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-29 00:01:51', '2025-10-29 00:01:36', '2025-10-29 00:01:51');
+INSERT INTO `user_sessions` (`id`, `user_id`, `session_token`, `refresh_token`, `ip_address`, `user_agent`, `is_active`, `expires_at`, `created_at`, `last_activity`) VALUES
+(215, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoidGVtcF8yMDI1MTAyNl85MDg0IiwiZW1haWwiOiJjZWxpbXBoaWxvZGxhbWluaTk0QGdtYWlsLmNvbSIsInJvbGUiOiJFT0ciLCJpYXQiOjE3NjE3MjQ5NjAsImV4cCI6MTc2MTcyNTg2MH0.mIuPmhc5Nllmc5nfjcZBjoBXztym5oCxQBbZtIqjr94', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE3MjQ5NjAsImV4cCI6MTc2MjMyOTc2MH0.rscG94AL8lPKiEFa95Fi8YhVsSTMfBAW0-OaTPxkJGo', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 0, '2025-10-29 08:03:22', '2025-10-29 08:02:40', '2025-10-29 08:03:22'),
+(216, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoiYmVlaGl2ZXMiLCJlbWFpbCI6ImNlbGltcGhpbG9kbGFtaW5pOTRAZ21haWwuY29tIiwicm9sZSI6IkVPRyIsImlhdCI6MTc2MTcyNTAxMCwiZXhwIjoxNzYxNzI1OTEwfQ.ZxPj0K-aYYfQed1WAv9-EFYgf4dwg1riUg_FNuOz_E8', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE3MjUwMTAsImV4cCI6MTc2MjMyOTgxMH0.6hnmkKAKB9RMCYS1kfETs4dSN0S0kUXsqcRlBxYm3ZY', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-29 08:06:29', '2025-10-29 08:03:30', '2025-10-29 08:06:29'),
+(217, 17, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInVzZXJuYW1lIjoiYmVlaGl2ZXMiLCJlbWFpbCI6ImNlbGltcGhpbG9kbGFtaW5pOTRAZ21haWwuY29tIiwicm9sZSI6IkVPRyIsImlhdCI6MTc2MTcyNzA2OSwiZXhwIjoxNzYxNzI3OTY5fQ.yb8Ey0_zrMfseqk3n39qTd52orcHS_BEgcld7qXAZ4g', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInRva2VuVHlwZSI6InJlZnJlc2giLCJpYXQiOjE3NjE3MjcwNjksImV4cCI6MTc2MjMzMTg2OX0.CGGSkQU5M5dzd-OY7PSGg1fAf5SZZVBzeg_5myZwWjU', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-29 08:38:15', '2025-10-29 08:37:49', '2025-10-29 08:38:15'),
+(218, 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AcmRmLmdvdi5zeiIsInJvbGUiOiJTVVBFUl9VU0VSIiwiaWF0IjoxNzYxNzM1NTIzLCJleHAiOjE3NjE3MzY0MjN9.0aMZEjOfnvS2vREp8EYdtzOb2DRW3tq4hYGpI88Z9us', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidG9rZW5UeXBlIjoicmVmcmVzaCIsImlhdCI6MTc2MTczNTUyMywiZXhwIjoxNzYyMzQwMzIzfQ.aVwNXZf3dutjU2zmM-xH0V-AO3isCOPhzVGnDFsT5sw', '::ffff:127.0.0.1', 'Dart/3.6 (dart:io)', 1, '2025-10-29 10:58:47', '2025-10-29 10:58:43', '2025-10-29 10:58:47');
 
 -- --------------------------------------------------------
 
@@ -2039,7 +2068,7 @@ ALTER TABLE `user_sessions`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `application_attachments`
@@ -2231,7 +2260,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_activity_logs`
 --
 ALTER TABLE `user_activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `user_notification_preferences`
@@ -2243,7 +2272,7 @@ ALTER TABLE `user_notification_preferences`
 -- AUTO_INCREMENT for table `user_sessions`
 --
 ALTER TABLE `user_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
 
 --
 -- Constraints for dumped tables
