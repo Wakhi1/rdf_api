@@ -334,11 +334,11 @@ router.post('/users',
 /**
  * @route   PUT /api/admin/users/:id
  * @desc    Update user
- * @access  Private (SUPER_USER only)
+ * @access  Private (restricted to EOG only)
  */
 router.put('/users/:id', 
   authenticate, 
-  requireRole(['SUPER_USER']),
+  requireRole(['CDO','LINE_MINISTRY','MICROPROJECTS','CDC','INKHUNDLA_COUNCIL','RDFTC','RDFC','PS','SUPER_USER']),
   validateParams(schemas.idParam),
   async (req, res) => {
     try {

@@ -53,6 +53,7 @@ const geographicRoutes = require('./routes/geographic.routes');
 const trainingRoutes = require('./routes/training.routes');
 const reportsRoutes = require('./routes/reports.routes');
 const adminRoutes = require('./routes/admin.routes');
+const statisticsRoutes = require('./routes/statistics.routes');
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -68,6 +69,7 @@ app.use('/api/geographic', geographicRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {

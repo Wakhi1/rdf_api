@@ -13,7 +13,7 @@ const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRY || '15m',
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRY || '45m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRY || '7d'
   },
   bcrypt: {
@@ -31,14 +31,14 @@ const config = {
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10485760 // 10MB
   },
   server: {
-    port: parseInt(process.env.PORT) || 3000,
+    port: parseInt(process.env.PORT) || 5000,
     env: process.env.NODE_ENV || 'development'
   },
   frontend: {
-    url: process.env.FRONTEND_URL || 'http://localhost:4200' // Add this section
+    url: process.env.FRONTEND_URL || 'http://localhost:63520' // Add this section
   },
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:63520',
     credentials: true
   },
   roles: [

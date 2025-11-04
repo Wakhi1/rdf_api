@@ -14,7 +14,7 @@
         "government",
         "funding"
     ],
-    "author": "",
+    "author": "Siwakhile Masilela, Terence Simelane,  Mbongeni Sibandze, Olwethu Dlamini, Wandile Ngwenya, Cynthia Makhabane",
     "license": "ISC",
     "dependencies": {
         "bcrypt": "^5.1.1",

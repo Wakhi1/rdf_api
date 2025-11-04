@@ -15,13 +15,12 @@ const config = require('../config/config');
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Create directory if it doesn't exist
-    const dir = path.join(config.upload.dir, 'eog_documents', String(req.params.eogId), file.fieldname);
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+    // For expression of interest, use temporary directory since we don't have eogId yet
+    const tempDir = path.join(config.upload.dir, 'temp_eog_documents');
+    fs.mkdirSync(tempDir, { recursive: true });
+    cb(null, tempDir);
   },
   filename: (req, file, cb) => {
-    // Generate unique filename
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
     cb(null, file.fieldname + '-' + uniqueSuffix + ext);
@@ -57,228 +56,285 @@ const upload = multer({ storage, fileFilter, limits });
 
 /**
  * @route   POST /api/registration/expression-of-interest
- * @desc    Create temporal EOG account
+ * @desc    Create EOG with documents upload (multipart form-data)
  * @access  Public
  */
-router.post('/expression-of-interest', validateBody(schemas.eogRegistration), async (req, res) => {
-  try {
-    const {
-      company_name,
-      company_type,
-      bin_cin,
-      email,
-      phone,
-      region_id,
-      tinkhundla_id,
-      umphakatsi_id,
-      total_members
-    } = req.body;
-
-    // Check if company name already exists
-    const existingCompany = await db.getOne(
-      'SELECT id FROM eogs WHERE company_name = ?',
-      [company_name]
-    );
-
-    if (existingCompany) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'Company name already exists'
-      });
-    }
-
-    // Check if BIN/CIN already exists
-    const existingBinCin = await db.getOne(
-      'SELECT id FROM eogs WHERE bin_cin = ?',
-      [bin_cin]
-    );
-
-    if (existingBinCin) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'BIN/CIN already exists'
-      });
-    }
-
-    // Check if email already exists
-    const existingEmail = await db.getOne(
-      'SELECT id FROM eogs WHERE email = ?',
-      [email]
-    );
-
-    if (existingEmail) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'Email already exists'
-      });
-    }
-
-    // Validate region, tinkhundla, and umphakatsi
-    const region = await db.getOne(
-      'SELECT * FROM regions WHERE id = ?',
-      [region_id]
-    );
-
-    if (!region) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'Invalid region'
-      });
-    }
-
-    const tinkhundla = await db.getOne(
-      'SELECT * FROM tinkhundla WHERE id = ? AND region_id = ?',
-      [tinkhundla_id, region_id]
-    );
-
-    if (!tinkhundla) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'Invalid tinkhundla or tinkhundla not in selected region'
-      });
-    }
-
-    const umphakatsi = await db.getOne(
-      'SELECT * FROM imiphakatsi WHERE id = ? AND tinkhundla_id = ?',
-      [umphakatsi_id, tinkhundla_id]
-    );
-
-    if (!umphakatsi) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: 'Invalid umphakatsi or umphakatsi not in selected tinkhundla'
-      });
-    }
-
-    // Begin transaction
-    const connection = await db.beginTransaction();
-
+router.post(
+  '/expression-of-interest',
+  upload.fields([
+    { name: 'constitution', maxCount: 1 },
+    { name: 'recognition_letter', maxCount: 1 },
+    { name: 'articles', maxCount: 1 },
+    { name: 'form_j', maxCount: 1 },
+    { name: 'certificate', maxCount: 1 },
+    { name: 'member_list', maxCount: 1 },
+  ]),
+  async (req, res) => {
     try {
-      // Set account expiry date (30 days from now)
-      const expiryDate = new Date();
-      expiryDate.setDate(expiryDate.getDate() + 30);
-
-      // Create temporary EOG
-      const eogResult = await connection.query(
-        `INSERT INTO eogs (
-          company_name, company_type, bin_cin, email, phone,
-          region_id, tinkhundla_id, umphakatsi_id,
-          status, temp_account_expires, total_members
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          company_name, company_type, bin_cin, email, phone,
-          region_id, tinkhundla_id, umphakatsi_id,
-          'temporary', expiryDate, total_members
-        ]
-      );
-
-      const eogId = eogResult[0].insertId;
-
-      // Generate temporary username
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      const username = `temp_${dateStr}_${randomNum}`;
-
-      // Generate temporary password
-      const tempPassword = bcryptUtils.generateRandomPassword(10);
-
-      // Hash password
-      const hashedPassword = await bcryptUtils.hashPassword(tempPassword);
-
-      // Create temporary user
-      const userResult = await connection.query(
-        `INSERT INTO users (
-          username, email, password, role, first_name, last_name,
-          phone, status, region_id, tinkhundla_id, umphakatsi_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          username, email, hashedPassword, 'EOG',
-          company_name, company_type, // Use company name and type as placeholders
-          phone, 'temporary', region_id, tinkhundla_id, umphakatsi_id
-        ]
-      );
-
-      const userId = userResult[0].insertId;
-
-      // Link EOG to user
-      await connection.query(
-        `INSERT INTO eog_users (eog_id, user_id, is_primary_contact)
-         VALUES (?, ?, ?)`,
-        [eogId, userId, true]
-      );
-
-      // Log registration activity
-      await connection.query(
-        `INSERT INTO eog_temporal_activity (
-          eog_id, activity_type, description, performed_by, ip_address
-        ) VALUES (?, ?, ?, ?, ?)`,
-        [
-          eogId, 'registration_started',
-          'EOG created temporary account',
-          userId, req.ip
-        ]
-      );
-
-      // Create notification preferences
-      await connection.query(
-        `INSERT INTO user_notification_preferences (
-          user_id, email_notifications, sms_notifications,
-          application_updates, committee_reminders, system_announcements
-        ) VALUES (?, ?, ?, ?, ?, ?)`,
-        [userId, true, false, true, true, true]
-      );
-
-      // Commit transaction
-      await db.commit(connection);
-
-      // Send credentials via email
-      const user = {
-        id: userId,
+      const {
+        company_name,
+        company_type,
+        bin_cin,
         email,
-        first_name: company_name,
-        last_name: '',
-        username
-      };
+        phone,
+        region_id,
+        tinkhundla_id,
+        umphakatsi_id,
+        total_members
+      } = req.body;
 
-      await emailUtils.sendWelcomeEmail(user, tempPassword);
+      // Validate required fields
+      if (!company_name || !company_type || !bin_cin || !email || !phone ||
+          !region_id || !tinkhundla_id || !umphakatsi_id || !total_members) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'All fields are required'
+        });
+      }
 
-      // Return success
-      return res.status(201).json({
-        success: true,
-        message: 'Temporary account created successfully',
-        data: {
-          eog_id: eogId,
-          username,
-          password: tempPassword,
-          expires_at: expiryDate,
-          days_remaining: 30,
-          next_steps: [
-            'Upload required documents',
-            'Add executive members (minimum 10)',
-            'Submit for CDO review'
+      // Validate that required documents are uploaded
+      const requiredDocs = ['constitution', 'recognition_letter', 'articles', 
+        'form_j', 'certificate', 'member_list'];
+      const missingDocs = requiredDocs.filter(doc => !req.files[doc]);
+
+      if (missingDocs.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: `Missing required documents: ${missingDocs.join(', ')}`
+        });
+      }
+
+      // Check if company name already exists
+      const existingCompany = await db.getOne(
+        'SELECT id FROM eogs WHERE company_name = ?',
+        [company_name]
+      );
+
+      if (existingCompany) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Company name already exists'
+        });
+      }
+
+      // Check if BIN/CIN already exists
+      const existingBinCin = await db.getOne(
+        'SELECT id FROM eogs WHERE bin_cin = ?',
+        [bin_cin]
+      );
+
+      if (existingBinCin) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'BIN/CIN already exists'
+        });
+      }
+
+      // Check if email already exists
+      const existingEmail = await db.getOne(
+        'SELECT id FROM eogs WHERE email = ?',
+        [email]
+      );
+
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Email already exists'
+        });
+      }
+
+      // Validate region, tinkhundla, and umphakatsi
+      const region = await db.getOne(
+        'SELECT * FROM regions WHERE id = ?',
+        [region_id]
+      );
+
+      if (!region) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Invalid region'
+        });
+      }
+
+      const tinkhundla = await db.getOne(
+        'SELECT * FROM tinkhundla WHERE id = ? AND region_id = ?',
+        [tinkhundla_id, region_id]
+      );
+
+      if (!tinkhundla) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Invalid tinkhundla or tinkhundla not in selected region'
+        });
+      }
+
+      const umphakatsi = await db.getOne(
+        'SELECT * FROM imiphakatsi WHERE id = ? AND tinkhundla_id = ?',
+        [umphakatsi_id, tinkhundla_id]
+      );
+
+      if (!umphakatsi) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Invalid umphakatsi or umphakatsi not in selected tinkhundla'
+        });
+      }
+
+      // Begin transaction
+      const connection = await db.beginTransaction();
+
+      try {
+        // Set account expiry date (30 days from now)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
+
+        // Create EOG
+        const eogResult = await connection.query(
+          `INSERT INTO eogs (
+            company_name, company_type, bin_cin, email, phone,
+            region_id, tinkhundla_id, umphakatsi_id,
+            status, temp_account_expires, total_members
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            company_name, company_type, bin_cin, email, phone,
+            region_id, tinkhundla_id, umphakatsi_id,
+            'temporary', expiryDate, total_members
           ]
+        );
+
+        const eogId = eogResult[0].insertId;
+
+        // Save uploaded documents
+        const documentTypes = ['constitution', 'recognition_letter', 'articles', 
+                              'form_j', 'certificate', 'member_list'];
+        
+        for (const docType of documentTypes) {
+          if (req.files[docType] && req.files[docType][0]) {
+            const file = req.files[docType][0];
+            
+            await connection.query(
+              `INSERT INTO eog_documents (
+                eog_id, document_type, file_name, file_path, file_size, mime_type, status
+              ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+              [
+                eogId,
+                docType,
+                file.originalname,
+                file.path,
+                file.size,
+                file.mimetype,
+                'pending_review'
+              ]
+            );
+          }
         }
-      });
+
+        // Generate temporary username
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const username = `temp_${dateStr}_${randomNum}`;
+
+        // Generate temporary password
+        const tempPassword = bcryptUtils.generateRandomPassword(10);
+
+        // Hash password
+        const hashedPassword = await bcryptUtils.hashPassword(tempPassword);
+
+        // Create temporary user
+        const userResult = await connection.query(
+          `INSERT INTO users (
+            username, email, password, role, first_name, last_name,
+            phone, status, region_id, tinkhundla_id, umphakatsi_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            username, email, hashedPassword, 'EOG',
+            company_name, company_type,
+            phone, 'temporary', region_id, tinkhundla_id, umphakatsi_id
+          ]
+        );
+
+        const userId = userResult[0].insertId;
+
+        // Link EOG to user
+        await connection.query(
+          `INSERT INTO eog_users (eog_id, user_id, is_primary_contact)
+           VALUES (?, ?, ?)`,
+          [eogId, userId, true]
+        );
+
+        // Log registration activity
+        await connection.query(
+          `INSERT INTO eog_temporal_activity (
+            eog_id, activity_type, description, performed_by, ip_address
+          ) VALUES (?, ?, ?, ?, ?)`,
+          [
+            eogId, 'registration_completed',
+            'EOG created account with documents uploaded',
+            userId, req.ip
+          ]
+        );
+
+        // Create notification preferences
+        await connection.query(
+          `INSERT INTO user_notification_preferences (
+            user_id, email_notifications, sms_notifications,
+            application_updates, committee_reminders, system_announcements
+          ) VALUES (?, ?, ?, ?, ?, ?)`,
+          [userId, true, false, true, true, true]
+        );
+
+        // Commit transaction
+        await db.commit(connection);
+
+        // Send credentials via email
+        const user = {
+          id: userId,
+          email,
+          first_name: company_name,
+          last_name: '',
+          username
+        };
+
+        await emailUtils.sendWelcomeEmail(user, tempPassword);
+
+        // Return success
+        return res.status(201).json({
+          success: true,
+          message: 'Account created successfully. Check your email for login credentials.',
+          data: {
+            eog_id: eogId,
+            expires_at: expiryDate,
+            days_remaining: 30,
+            next_steps: [
+              'Check your email for login credentials',
+              'Login to your account',
+              'Add executive members (minimum 10)',
+              'Submit for CDO review'
+            ]
+          }
+        });
+      } catch (error) {
+        await db.rollback(connection);
+        throw error;
+      }
     } catch (error) {
-      // Rollback transaction on error
-      await db.rollback(connection);
-      throw error;
+      logger.error(`Expression of interest error: ${error.message}`);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: error.message
+      });
     }
-  } catch (error) {
-    logger.error(`EOG registration error: ${error.message}`);
-    return res.status(500).json({
-      success: false,
-      error: 'Internal Server Error',
-      message: error.message
-    });
   }
-});
+);
 
 /**
  * @route   GET /api/registration/:eogId/status

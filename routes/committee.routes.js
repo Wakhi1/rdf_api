@@ -6,7 +6,7 @@ const { authenticate } = require('../middleware/auth.middleware');
 const { requireRole } = require('../middleware/role.middleware');
 const { validateParams, schemas } = require('../middleware/validation.middleware');
 const { sendEmail } = require('../utils/email');
-const { generateOTP, verifyOTP } = require('../utils/otp');
+const { createOTP, verifyOTP } = require('../utils/otp');
 
 /**
  * @route   GET /api/committees/types/:type
@@ -367,6 +367,136 @@ router.get('/applications/:applicationId/approval-status',
 );
 
 /**
+ * @route   POST /api/committees/send-otp
+ * @desc    Send OTP to committee member for verification
+ * @access  Private
+ */
+router.post('/send-otp',
+  authenticate,
+  async (req, res) => {
+    try {
+      const { application_id } = req.body;
+      
+      // Validate required fields
+      if (!application_id) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation Error',
+          message: 'Application ID is required'
+        });
+      }
+      
+      // Verify application exists
+      const application = await db.getOne(`
+        SELECT a.*, e.company_name 
+        FROM applications a
+        JOIN eogs e ON a.eog_id = e.id
+        WHERE a.id = ?
+      `, [application_id]);
+      
+      if (!application) {
+        return res.status(404).json({
+          success: false,
+          error: 'Not Found',
+          message: 'Application not found'
+        });
+      }
+      
+      // Map workflow level to committee type
+      const committeeTypeMap = {
+        'UMPHAKATSI_LEVEL': 'CDC',
+        'INKHUNDLA_LEVEL': 'INKHUNDLA_COUNCIL',
+        'RDFTC_LEVEL': 'RDFTC',
+        'RDFC_LEVEL': 'RDFC'
+      };
+      
+      const committeeType = committeeTypeMap[application.current_level];
+      
+      if (!committeeType) {
+        return res.status(400).json({
+          success: false,
+          error: 'Bad Request',
+          message: `Application is not at a committee level (current: ${application.current_level})`
+        });
+      }
+      
+      // Verify user is a member of this committee
+      const committeeMember = await db.getOne(`
+        SELECT cm.*, c.name as committee_name
+        FROM committee_members cm
+        JOIN committees c ON cm.committee_id = c.id
+        WHERE cm.user_id = ? AND c.type = ? AND c.is_active = TRUE
+      `, [req.user.id, committeeType]);
+      
+      if (!committeeMember) {
+        return res.status(403).json({
+          success: false,
+          error: 'Forbidden',
+          message: 'You are not a member of the required committee'
+        });
+      }
+      
+      // Generate OTP using createOTP
+      const otpCode = await createOTP(
+        req.user.id,
+        'verification', // This should match what verifyOTP looks for
+        parseInt(application_id),
+        'applications'
+      );
+      
+      // Calculate expiry time
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      
+      // Send OTP email
+      await sendEmail(
+        req.user.email,
+        `Committee Verification - ${application.reference_number}`,
+        `
+        <h1>Committee Member Verification</h1>
+        <p>Hello ${req.user.first_name} ${req.user.last_name},</p>
+        <p>You have requested to advance application <strong>${application.reference_number}</strong> (${application.company_name}).</p>
+        <p>Your verification code is: <strong style="font-size: 24px; color: #2563eb;">${otpCode}</strong></p>
+        <p>This code will expire in 10 minutes.</p>
+        <p>If you did not request this code, please ignore this email.</p>
+        <p>Thank you,</p>
+        <p>The RDF System</p>
+        `
+      );
+      
+      // Log activity
+      await logger.activity(
+        req.user.id,
+        'otp_sent',
+        'applications',
+        application_id,
+        { 
+          purpose: 'verification',
+          committee_type: committeeType 
+        },
+        req.ip,
+        req.get('User-Agent')
+      );
+      
+      return res.status(200).json({
+        success: true,
+        message: 'OTP sent to your email',
+        data: {
+          expires_at: expiresAt
+        }
+      });
+    } catch (error) {
+      logger.error(`Send OTP error: ${error.message}`);
+      logger.error(error.stack);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: error.message
+      });
+    }
+  }
+);
+
+/**
  * @route   POST /api/committees/:committeeId/approve-application
  * @desc    Approve/sign application as committee member
  * @access  Private
@@ -579,18 +709,18 @@ router.post('/',
 );
 
 /**
- * @route   POST /api/committees/:committeeId/members
+ * @route   POST /api/committees/:id/members
  * @desc    Add member to committee
  * @access  Private (SUPER_USER only)
  */
-router.post('/:committeeId/members', 
+router.post('/:id/members', 
   authenticate, 
   requireRole(['SUPER_USER']),
   validateParams(schemas.idParam),
   async (req, res) => {
     try {
-      const { committeeId } = req.params;
-      const { user_id, position, is_chairperson } = req.body;
+      const { id } = req.params; // Changed from committeeId to id
+      const {user_id, position, is_chairperson } = req.body;
       
       // Validate required fields
       if (!user_id || !position) {
@@ -604,7 +734,7 @@ router.post('/:committeeId/members',
       // Verify committee exists
       const committee = await db.getOne(
         'SELECT * FROM committees WHERE id = ?',
-        [committeeId]
+        [id] // Use id instead of committeeId
       );
       
       if (!committee) {
@@ -632,7 +762,7 @@ router.post('/:committeeId/members',
       // Check if already a member
       const existingMember = await db.getOne(
         'SELECT id FROM committee_members WHERE committee_id = ? AND user_id = ?',
-        [committeeId, user_id]
+        [id, user_id] // Use id instead of committeeId
       );
       
       if (existingMember) {
@@ -647,7 +777,7 @@ router.post('/:committeeId/members',
       if (is_chairperson) {
         const existingChairperson = await db.getOne(
           'SELECT id FROM committee_members WHERE committee_id = ? AND is_chairperson = TRUE',
-          [committeeId]
+          [id] // Use id instead of committeeId
         );
         
         if (existingChairperson) {
@@ -661,7 +791,7 @@ router.post('/:committeeId/members',
       
       // Add member
       const result = await db.insert('committee_members', {
-        committee_id: committeeId,
+        committee_id: id, // Use id instead of committeeId
         user_id,
         position,
         is_chairperson: is_chairperson || false
@@ -672,7 +802,7 @@ router.post('/:committeeId/members',
         req.user.id,
         'committee_member_added',
         'committees',
-        committeeId,
+        id, // Use id instead of committeeId
         { user_id, position, is_chairperson },
         req.ip,
         req.get('User-Agent')
